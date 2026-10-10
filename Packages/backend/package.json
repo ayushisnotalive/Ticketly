@@ -1,0 +1,25 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "backend for Ticketly, A booking Engine",
+  "main": "Index.ts",
+  "scripts": {
+    "dev": "ts-node-dev --respawn --transpile-only Index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Ayush Chakraborty",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.6.5",
+    "prisma": "^8.0.0-rc.22",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^7.0.2"
+  },
+  "dependencies": {
+    "@prisma/client": "^7.10.0",
+    "dotenv": "^18.0.7",
+    "express": "^5.3.0",
+    "zod": "^4.6.5"
+  }
+}
