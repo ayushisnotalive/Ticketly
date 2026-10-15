@@ -1,0 +1,25 @@
+--user
+CREATE TABLE USERS(
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password_hash TEXT NOT NULL,
+    role VARCHAR(20) NOT NULL DEFAULT 'user',
+    CHECK (role IN('user','admin')),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+
+
+--refresh token
+CREATE TABLE refresh_tokens(
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    token_hash TEXT NOT NULL UNIQUE,
+    expires_at TIMESTAMPTZ NOT NULL DEFAULT now()
+)
+
+--events
+
+CREATE TABLE events(
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    
+)
