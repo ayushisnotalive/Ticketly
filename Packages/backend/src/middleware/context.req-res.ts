@@ -1,4 +1,4 @@
-import {Request,Response,NextFunction} from "express";
+import type {Request, Response, NextFunction} from "express";
 import { AsyncLocalStorage } from "async_hooks";
 
 const storage = new AsyncLocalStorage<{req:Request, res:Response}>();
