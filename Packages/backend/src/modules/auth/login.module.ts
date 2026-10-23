@@ -8,17 +8,10 @@ export const LoginModule = async(req:Request, res:Response)=>{
     try{
         const parsed = LoginSchema.safeParse(req.body);
         if(!parsed.success){
-            return res.status(401).send({
-                error:'invalid data'
-            });
-        }
+            return res.status(400).json({ error:"invalid input",details: parsed.error.flatten()})}
 
-        const email = parsed.data.email.toLocaleLowerCase();
-        const {password_hash} = parsed.data;
-        const isExisting = await db.query('SELECT id FROM users WHERE email=$1',[email]);
-        if(!isExisting.rowCount){
-            return res.status(409).send("user doesn't exists")
-        }
+        const email = parsed.data.email.toLowerCase();
+        const { password_hash: password } = parsed.data;
 
         const { rows } = await db.query(
             "SELECT id, email, role, password_hash FROM users WHERE email = $1",
@@ -26,14 +19,14 @@ export const LoginModule = async(req:Request, res:Response)=>{
             );
         const user = rows[0];
 
-        const ok = user && (await verifyPassword(password_hash, user.password_hash));
+        const ok = user && (await verifyPassword(password, user.password_hash));
         if (!ok) {
             return res.status(401).json({ error: "Invalid email or password" });
             }
 
         const payload = {id:user.id, email:user.email, role:user.role};
         const accessToken = generateAccessToken(payload);
-        const refreshToken = generateRefreshToken(payload);
+        const refreshToken = generateRefreshToken(user.id);
         await storeRefreshToken(user.id, refreshToken);
 
         return res.status(200).json({
@@ -44,9 +37,8 @@ export const LoginModule = async(req:Request, res:Response)=>{
 
     }
 
-    catch(err:any){
-            if (err.code === "23505") return res.status(409).json({ error: "Email already registered" });
-            console.error(err);
-            return res.status(500).json({ error: "Internal server error" });
-    }
+    catch (err) {
+        console.error(err);
+        return res.status(500).json({ error: "Internal server error" });
+        }
 }
