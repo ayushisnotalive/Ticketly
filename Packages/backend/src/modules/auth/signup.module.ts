@@ -10,28 +10,29 @@ export const SignupModule = async (req: Request, res: Response) => {
     if (!parsed.success) {
       return res.status(400).json({ error: "Invalid input", details: parsed.error.flatten() });
     }
-    const { email, password_hash, role } = parsed.data;
+    const email = parsed.data.email.toLowerCase();
+    const { password_hash } = parsed.data;
 
-    const existing = await db.query("SELECT id FROM users WHERE email = $1", [email]);
+    const existing = await db.query("SELECT id FROM users WHERE email = $1" , [email]);
     if (existing.rowCount) {
-      return res.status(409).json({ error: "Email already registered" });
+      return res.status(409).json({ error: "user already exists wirh this email " });
     }
 
     const hashedPassword = await hashPassword(password_hash);
     const { rows } = await db.query(
-      "INSERT INTO users (email, password_hash, role) VALUES ($1, $2, $3) RETURNING id, email, role",
-      [email, hashedPassword, role]
+      `INSERT INTO users (email, password_hash, role) VALUES ($1, $2, 'user') RETURNING id, email, role`,
+      [email, hashedPassword]
     );
     const user = rows[0];
 
     const payload = { id: user.id, email: user.email, role: user.role };
     const accessToken = generateAccessToken(payload);
-    const refreshToken = generateRefreshToken(payload);
+    const refreshToken = generateRefreshToken(user.id);
     await storeRefreshToken(user.id, refreshToken);
 
     return res.status(201).json({ user, accessToken, refreshToken });
   } catch (err: any) {
-    if (err.code === "23505") return res.status(409).json({ error: "Email already registered" });
+    if (err.code === "23505") return res.status(409).json({ error: "user already registered with this email bro" });
     console.error(err);
     return res.status(500).json({ error: "Internal server error" });
   }

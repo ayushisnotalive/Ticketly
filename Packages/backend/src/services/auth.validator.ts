@@ -8,5 +8,6 @@ export const SignupSchema = z.object({
 
 export const LoginSchema = z.object({
     email: z.string().email(),
-    password_hash: z.string().min(1)
+    password_hash: z.string().min(1),
+    role: z.enum(['user','admin'])
 });
