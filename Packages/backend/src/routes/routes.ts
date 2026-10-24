@@ -7,4 +7,3 @@ const app = Express();
 app.get("/api/events");
 app.post("/api/signup",SignupModule);
 app.post("/api/login",LoginModule);
-
